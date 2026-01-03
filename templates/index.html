@@ -9,15 +9,21 @@
 <nav class="navbar navbar-dark bg-dark mb-4">
     <div class="container">
         <a class="navbar-brand" href="/">🍜 Spicy Noodle</a>
-        <div>
-            {% if session.user %}
-                <span class="text-white me-3">Привіт, {{ session.user }}!</span>
-                <a href="/cart" class="btn btn-outline-warning">Кошик ({{ session.cart|length if session.cart else 0 }})</a>
-                <a href="/logout" class="btn btn-sm btn-outline-danger">Вихід</a>
-            {% else %}
-                <a href="/login" class="btn btn-primary">Увійти</a>
-            {% endif %}
-        </div>
+        <div class="d-flex align-items-center">
+    {% if session.user_email %}
+        <span class="me-3">Вітаємо, <b>{{ session.user_name }}</b>!</span>
+        
+        {% if session.user_role == 'admin' %}
+            <a href="/admin" class="btn btn-dark me-2">Адмін-панель</a>
+        {% endif %}
+        
+        <a href="/cart" class="btn btn-warning me-2">Кошик ({{ session.cart|length if session.cart else 0 }})</a>
+        <a href="/logout" class="btn btn-outline-danger">Вихід</a>
+    {% else %}
+        <a href="/login" class="btn btn-outline-primary me-2">Увійти</a>
+        <a href="/register" class="btn btn-primary">Реєстрація</a>
+    {% endif %}
+</div>
     </div>
 </nav>
 <div class="container">
@@ -38,4 +44,5 @@
     </div>
 </div>
 </body>
+
 </html>

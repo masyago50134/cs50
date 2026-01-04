@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'secure_key_999')
+app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_777')
 
 # База даних
 project_dir = os.path.dirname(os.path.abspath(__file__))
@@ -32,16 +32,15 @@ class Order(db.Model):
     total = db.Column(db.Integer)
     status = db.Column(db.String(20), default='Очікує оплати')
 
+# Ініціалізація бази
 with app.app_context():
     db.create_all()
-    # Початкові товари
     if not Product.query.first():
         db.session.add_all([
             Product(name="Локшина слабоостра", price=100, img="🍀"),
             Product(name="Локшина середньоостра", price=120, img="🔥"),
             Product(name="Локшина суперостра", price=150, img="💀")
         ])
-    # Дефолтний адмін
     if not User.query.filter_by(email="admin@test.com").first():
         db.session.add(User(name="Адмін", email="admin@test.com", password="123", role="admin"))
     db.session.commit()
@@ -56,14 +55,16 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        name = request.form.get('name')
         email = request.form.get('email')
+        password = request.form.get('password')
         if User.query.filter_by(email=email).first():
-            flash('Цей Email вже зайнятий!', 'danger')
+            flash('Email вже зайнятий', 'danger')
         else:
-            new_user = User(name=request.form.get('name'), email=email, password=request.form.get('password'))
+            new_user = User(name=name, email=email, password=password)
             db.session.add(new_user)
             db.session.commit()
-            flash('Успішна реєстрація!', 'success')
+            flash('Реєстрація успішна!', 'success')
             return redirect(url_for('login'))
     return render_template('register.html')
 
@@ -88,8 +89,8 @@ def add_to_cart(pid):
 @app.route('/cart')
 def cart():
     cart_ids = session.get('cart', [])
-    items = [Product.query.get(pid) for pid in cart_ids]
-    total = sum(i.price for i in items if i)
+    items = [Product.query.get(pid) for pid in cart_ids if Product.query.get(pid)]
+    total = sum(i.price for i in items)
     return render_template('cart.html', items=items, total=total)
 
 @app.route('/checkout_liqpay', methods=['POST'])
@@ -103,8 +104,9 @@ def checkout_liqpay():
     order = Order(user_email=session.get('u_email'), items=items_names, total=total)
     db.session.add(order)
     db.session.commit()
-    session.pop('cart', None)
+    session.pop('cart', None) # Чистимо кошик
 
+    # LiqPay Logic
     params = {
         "public_key": os.environ.get('LIQPAY_PUBLIC_KEY', 'sandbox_i0000000'),
         "version": "3", "action": "pay", "currency": "UAH",
@@ -115,8 +117,6 @@ def checkout_liqpay():
     p_key = os.environ.get('LIQPAY_PRIVATE_KEY', 'sandbox_pass')
     signature = base64.b64encode(hashlib.sha1((p_key + data + p_key).encode()).digest()).decode()
     return render_template('redirect_liqpay.html', data=data, signature=signature)
-
-# --- АДМІН ФУНКЦІЇ ---
 
 @app.route('/admin')
 def admin_panel():
@@ -139,4 +139,4 @@ def logout():
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))

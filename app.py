@@ -133,6 +133,32 @@ def edit_product(pid):
         flash('Товар оновлено!', 'success')
     return redirect(url_for('admin_panel'))
 
+# Додавання нового товару
+@app.route('/admin/add_product', methods=['POST'])
+def add_product():
+    if session.get('u_role') == 'admin':
+        name = request.form.get('name')
+        price = int(request.form.get('price'))
+        img = request.form.get('img', '🍜') # Емодзі за замовчуванням
+        
+        new_product = Product(name=name, price=price, img=img)
+        db.session.add(new_product)
+        db.session.commit()
+        flash(f'Товар "{name}" додано!', 'success')
+    return redirect(url_for('admin_panel'))
+
+# Видалення товару
+@app.route('/admin/delete_product/<int:pid>')
+def delete_product(pid):
+    if session.get('u_role') == 'admin':
+        product = Product.query.get(pid)
+        if product:
+            db.session.delete(product)
+            db.session.commit()
+            flash('Товар видалено', 'info')
+    return redirect(url_for('admin_panel'))
+
+
 @app.route('/logout')
 def logout():
     session.clear()
@@ -140,3 +166,4 @@ def logout():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+

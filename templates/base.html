@@ -11,9 +11,10 @@
         <div class="container">
             <a class="navbar-brand" href="/">Best Lapsha 🥡</a>
             <div>
-                {% if session.get('is_admin') %}
+                {% if session.get('u_role') == 'admin' %}
                     <a href="/admin" class="admin-btn">Керування</a>
                 {% endif %}
+
 
                 {% if session.u_name %}
                     <span class="text-white me-2">{{ session.u_name }}</span>

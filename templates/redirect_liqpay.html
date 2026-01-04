@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <h3 class="mt-3">Перенаправлення на безпечну сторінку оплати...</h3>
+    
+    <form id="liqpay-form" method="POST" action="https://www.liqpay.ua/api/3/checkout" accept-charset="utf-8">
+        <input type="hidden" name="data" value="{{ data }}" />
+        <input type="hidden" name="signature" value="{{ signature }}" />
+    </form>
+
+    <script>
+        // Автоматична відправка форми після завантаження сторінки
+        window.onload = function() {
+            document.getElementById('liqpay-form').submit();
+        };
+    </script>
+</div>
+{% endblock %}

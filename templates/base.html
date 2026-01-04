@@ -11,9 +11,12 @@
         <div class="container">
             <a class="navbar-brand" href="/">Best Lapsha 🥡</a>
             <div>
+                {% if session.get('is_admin') %}
+                    <a href="/admin" class="admin-btn">Керування</a>
+                {% endif %}
+
                 {% if session.u_name %}
                     <span class="text-white me-2">{{ session.u_name }}</span>
-                    <a href="/admin" class="btn btn-primary btn-sm">Керування</a>
                     <a href="/cart" class="btn btn-warning btn-sm">Кошик ({{ session.cart|length if session.cart else 0 }})</a>
                     <a href="/logout" class="btn btn-outline-danger btn-sm">Вихід</a>
                 {% else %}

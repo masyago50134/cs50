@@ -94,7 +94,6 @@ def login():
             session.update({'u_id': user.id, 'u_name': user.name, 'u_role': user.role, 'u_email': user.email})
             return redirect(url_for('index'))
         flash('Невірні дані', 'danger')
-        session['is_admin'] = True
     return render_template('login.html')
 
 @app.route('/add/<int:pid>')

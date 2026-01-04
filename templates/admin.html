@@ -1,27 +1,44 @@
-<div class="card mt-4 shadow-sm">
-    <div class="card-header bg-primary text-white">Список замовлень</div>
-    <div class="card-body">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Email покупця</th>
-                    <th>Товари</th>
-                    <th>Сума</th>
-                    <th>Статус</th>
-                </tr>
-            </thead>
+{% extends "base.html" %}
+{% block content %}
+<h2>Панель адміністратора</h2>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h4>📦 Керування товарами</h4>
+        <table class="table table-bordered bg-white">
+            <thead><tr><th>Вигляд</th><th>Назва</th><th>Ціна (грн)</th><th>Дія</th></tr></thead>
             <tbody>
-                {% for order in orders %}
+                {% for p in products %}
                 <tr>
-                    <td>{{ order.id }}</td>
-                    <td>{{ order.user_email }}</td>
-                    <td>{{ order.items }}</td>
-                    <td>{{ order.total }} грн</td>
-                    <td><span class="badge bg-info">{{ order.status }}</span></td>
+                    <form method="POST" action="/admin/edit_product/{{ p.id }}">
+                        <td class="text-center" style="font-size: 1.5rem;">{{ p.img }}</td>
+                        <td><input type="text" name="name" value="{{ p.name }}" class="form-control"></td>
+                        <td><input type="number" name="price" value="{{ p.price }}" class="form-control"></td>
+                        <td><button type="submit" class="btn btn-primary btn-sm">Зберегти</button></td>
+                    </form>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h4>👥 Користувачі</h4>
+        <ul class="list-group">
+            {% for u in users %}
+            <li class="list-group-item">{{ u.name }} ({{ u.email }}) - <b>{{ u.role }}</b></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-md-6">
+        <h4>📜 Останні замовлення</h4>
+        <ul class="list-group">
+            {% for o in orders %}
+            <li class="list-group-item">#{{ o.id }} | {{ o.total }}грн | {{ o.status }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

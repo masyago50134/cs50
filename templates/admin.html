@@ -1,44 +1,91 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Панель адміністратора</h2>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Адмін-панель</h2>
+    <span class="badge bg-danger">Режим: Адміністратор</span>
+</div>
 
-<div class="row mt-4">
-    <div class="col-md-12">
-        <h4>📦 Керування товарами</h4>
-        <table class="table table-bordered bg-white">
-            <thead><tr><th>Вигляд</th><th>Назва</th><th>Ціна (грн)</th><th>Дія</th></tr></thead>
-            <tbody>
-                {% for p in products %}
-                <tr>
-                    <form method="POST" action="/admin/edit_product/{{ p.id }}">
-                        <td class="text-center" style="font-size: 1.5rem;">{{ p.img }}</td>
-                        <td><input type="text" name="name" value="{{ p.name }}" class="form-control"></td>
-                        <td><input type="number" name="price" value="{{ p.price }}" class="form-control"></td>
-                        <td><button type="submit" class="btn btn-primary btn-sm">Зберегти</button></td>
-                    </form>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">➕ Додати товар</div>
+            <div class="card-body">
+                <form method="POST" action="/admin/add_product">
+                    <div class="mb-2">
+                        <label class="small">Назва локшини</label>
+                        <input type="text" name="name" class="form-control" placeholder="Напр: Том Ям" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="small">Ціна (грн)</label>
+                        <input type="number" name="price" class="form-control" placeholder="150" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small">Емодзі (іконка)</label>
+                        <input type="text" name="img" class="form-control" placeholder="🍤">
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Створити</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">📦 Керування асортиментом</div>
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle m-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Іконка</th>
+                            <th>Назва та Ціна</th>
+                            <th>Дії</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in products %}
+                        <tr>
+                            <form method="POST" action="/admin/edit_product/{{ p.id }}">
+                                <td style="font-size: 1.5rem;">{{ p.img }}</td>
+                                <td>
+                                    <input type="text" name="name" value="{{ p.name }}" class="form-control form-control-sm mb-1">
+                                    <input type="number" name="price" value="{{ p.price }}" class="form-control form-control-sm">
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <button type="submit" class="btn btn-primary btn-sm">💾</button>
+                                        <a href="/admin/delete_product/{{ p.id }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Видалити?')">🗑️</a>
+                                    </div>
+                                </td>
+                            </form>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
 <div class="row mt-4">
-    <div class="col-md-6">
-        <h4>👥 Користувачі</h4>
-        <ul class="list-group">
-            {% for u in users %}
-            <li class="list-group-item">{{ u.name }} ({{ u.email }}) - <b>{{ u.role }}</b></li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div class="col-md-6">
-        <h4>📜 Останні замовлення</h4>
-        <ul class="list-group">
-            {% for o in orders %}
-            <li class="list-group-item">#{{ o.id }} | {{ o.total }}грн | {{ o.status }}</li>
-            {% endfor %}
-        </ul>
+    <div class="col-md-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">📜 Останні замовлення</div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead><tr><th>ID</th><th>Клієнт</th><th>Сума</th><th>Статус</th></tr></thead>
+                    <tbody>
+                        {% for o in orders %}
+                        <tr>
+                            <td>#{{ o.id }}</td>
+                            <td>{{ o.user_email }}</td>
+                            <td>{{ o.total }} грн</td>
+                            <td><span class="badge bg-info">{{ o.status }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="py-4">
+  <h2>Статус оплати</h2>
+
+  <div class="card mt-3">
+    <div class="card-body">
+      <p class="mb-2"><b>Замовлення №{{ order.id }}</b></p>
+      <p class="mb-2">Сума: <b>{{ order.total }} грн</b></p>
+      <p class="mb-2">Товари: {{ order.items }}</p>
+      <p class="mb-0">Статус: <span class="badge bg-primary">{{ order.status }}</span></p>
+    </div>
+  </div>
+
+  {% if order.status != 'Оплачено' %}
+    <div class="alert alert-info mt-3">
+      Якщо ви щойно оплатили — сторінка оновиться автоматично.
+    </div>
+    <script>
+      setTimeout(() => window.location.reload(), 3000);
+    </script>
+  {% else %}
+    <div class="alert alert-success mt-3">
+      Дякуємо! Оплату підтверджено.
+    </div>
+  {% endif %}
+
+  <a class="btn btn-link mt-2" href="{{ url_for('index') }}">Повернутися на головну</a>
+</div>
+{% endblock %}

@@ -11,12 +11,10 @@
         </div>
     </div>
     <div class="d-flex gap-2">
-        <form method="POST" action="https://www.liqpay.ua/api/3/checkout" accept-charset="utf-8">
-            <input type="hidden" name="data" value="{{ data }}" />
-            <input type="hidden" name="signature" value="{{ signature }}" />
-            <button type="submit" class="btn btn-success btn-lg w-100 shadow"> Сплатити {{ total }} грн </button>
+        <form method="POST" action="{{ url_for('checkout_liqpay') }}">
+            <button type="submit" class="btn btn-success btn-lg w-100 shadow">Сплатити {{ total }} грн</button>
         </form>
-        <a href="/clear" class="btn btn-outline-danger btn-lg">Очистити</a>
+        <a href="{{ url_for('clear_cart') }}" class="btn btn-outline-danger btn-lg">Очистити</a>
     </div>
 {% else %}
     <p>Кошик порожній.</p>

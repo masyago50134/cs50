@@ -1,17 +1,23 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="row">
-    {% for id, p in products.items() %}
+    {% for p in products %}
     <div class="col-md-4 mb-4">
-        <div class="card h-100 shadow-sm text-center">
+        <div class="card h-100 shadow-sm text-center border-0">
             <div class="card-body">
-                <div style="font-size: 3rem;">{{ p.img }}</div>
-                <h3>{{ p.name }}</h3>
-                <p class="text-muted">{{ p.desc }}</p>
-                <h4 class="text-danger">{{ p.price }} грн</h4>
-                <a href="/add/{{ id }}" class="btn btn-success mt-2">В кошик</a>
+                <div style="font-size: 3.5rem;" class="mb-2">{{ p.img }}</div>
+                <h4 class="card-title">{{ p.name }}</h4>
+                <p class="text-muted small">Смачна та гаряча локшина за традиційним рецептом.</p>
+                <h3 class="text-danger fw-bold">{{ p.price }} грн</h3>
+                <a href="/add/{{ p.id }}" class="btn btn-success w-100 py-2 mt-2 shadow-sm">
+                    🛒 Додати в кошик
+                </a>
             </div>
         </div>
+    </div>
+    {% else %}
+    <div class="col-12 text-center">
+        <p class="text-muted">Товарів поки немає. Зайдіть в адмінку, щоб додати перші позиції!</p>
     </div>
     {% endfor %}
 </div>

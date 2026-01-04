@@ -96,28 +96,58 @@ def cart():
 @app.route('/checkout_liqpay', methods=['POST'])
 def checkout_liqpay():
     cart_ids = session.get('cart', [])
-    if not cart_ids: return redirect(url_for('index'))
-    items = [Product.query.get(pid) for pid in cart_ids if Product.query.get(pid)]
+    if not cart_ids:
+        flash('Кошик порожній!', 'warning')
+        return redirect(url_for('index'))
+    
+    # Знаходимо реальні об'єкти товарів у базі
+    items = []
+    for pid in cart_ids:
+        p = Product.query.get(pid)
+        if p:
+            items.append(p)
+    
+    if not items:
+        session.pop('cart', None)
+        flash('Товари не знайдені в базі', 'danger')
+        return redirect(url_for('index'))
+
     items_names = ", ".join([i.name for i in items])
     total = sum(i.price for i in items)
     
-    order = Order(user_email=session.get('u_email'), items=items_names, total=total)
+    # 1. Створюємо замовлення
+    order = Order(user_email=session.get('u_email', 'Гість'), items=items_names, total=total)
     db.session.add(order)
     db.session.commit()
-    session.pop('cart', None) # Чистимо кошик
+    
+    # 2. Очищуємо кошик ВІДРАЗУ
+    session.pop('cart', None)
+    session.modified = True
 
-    # LiqPay Logic
+    # 3. Формуємо LiqPay (використовуємо .get для безпеки)
+    pub_key = os.environ.get('LIQPAY_PUBLIC_KEY', 'sandbox_i0000000')
+    priv_key = os.environ.get('LIQPAY_PRIVATE_KEY', 'sandbox_pass')
+
     params = {
-        "public_key": os.environ.get('LIQPAY_PUBLIC_KEY', 'sandbox_i0000000'),
-        "version": "3", "action": "pay", "currency": "UAH",
-        "amount": float(total), "description": f"Order #{order.id}",
-        "order_id": str(order.id), "sandbox": "1"
+        "public_key": pub_key,
+        "version": "3",
+        "action": "pay",
+        "amount": float(total),
+        "currency": "UAH",
+        "description": f"Замовлення №{order.id}: {items_names[:100]}",
+        "order_id": str(order.id),
+        "sandbox": "1",
+        "result_url": url_for('index', _external=True)
     }
-    data = base64.b64encode(json.dumps(params).encode()).decode()
-    p_key = os.environ.get('LIQPAY_PRIVATE_KEY', 'sandbox_pass')
-    signature = base64.b64encode(hashlib.sha1((p_key + data + p_key).encode()).digest()).decode()
-    return render_template('redirect_liqpay.html', data=data, signature=signature)
 
+    # Важливо: використовуємо json.dumps без зайвих пробілів
+    json_params = json.dumps(params, separators=(',', ':'))
+    data = base64.b64encode(json_params.encode()).decode()
+    
+    sign_str = priv_key + data + priv_key
+    signature = base64.b64encode(hashlib.sha1(sign_str.encode()).digest()).decode()
+    
+    return render_template('redirect_liqpay.html', data=data, signature=signature)
 @app.route('/admin')
 def admin_panel():
     if session.get('u_role') != 'admin': return redirect(url_for('index'))
@@ -166,4 +196,5 @@ def logout():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+
 

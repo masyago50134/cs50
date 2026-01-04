@@ -45,6 +45,17 @@ with app.app_context():
 def index():
     return render_template('index.html', products=PRODUCTS)
 
+@app.route('/admin')
+def admin_panel():
+    # Перевірка прав доступу
+    if 'u_role' not in session or session['u_role'] != 'admin':
+        flash('Доступ заборонено! Ви не є адміністратором.', 'danger')
+        return redirect(url_for('index'))
+    
+    # Отримуємо всіх користувачів з бази даних
+    users = User.query.all()
+    return render_template('admin.html', users=users, products=PRODUCTS)
+    
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -116,3 +127,4 @@ def clear_cart():
 
 if __name__ == '__main__':
     app.run(debug=True)
+

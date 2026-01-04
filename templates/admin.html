@@ -1,0 +1,27 @@
+<div class="card mt-4 shadow-sm">
+    <div class="card-header bg-primary text-white">Список замовлень</div>
+    <div class="card-body">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Email покупця</th>
+                    <th>Товари</th>
+                    <th>Сума</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.user_email }}</td>
+                    <td>{{ order.items }}</td>
+                    <td>{{ order.total }} грн</td>
+                    <td><span class="badge bg-info">{{ order.status }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
